@@ -225,61 +225,61 @@ def apprise_init():
             alerts.add(service)
         return alerts
           
-def get_current_ip(type, proxies):
-    try:
-        return ((requests.get(f"https://ip{type}.icanhazip.com", proxies=proxies)).text).strip("\n")
-    except requests.ConnectionError:
-        print(f"Unable to get IP{type} address")
-        if type == "v4":
-            # Send message to console and apprise alert if configured
-            print(f"Failed to connect to icanhazip.com over {type}. Is there a problem with your network?")
-            if APPRISE_ALERTS:
-                alerts.notify(title=f"Failed to connect to icanhazip.com over {type}",
-                    body=f"Is there a problem with your network?")
-            # Wait some time (to prevent Docker containers from constantly restarting)
-            sleep(300)
-            raise Exception(f"Failed to connect to icanhazip.com over {type}. Is there a problem with your network?")
-        if type == "v6":
-            # We can just fail softly if this error occurs with v6. Note that a ConnectionError is raised if a v4-only host tries to connect to a v6 site
-            # We can make this fail hard once v6 is actually widely available....
-            return None
-    except Exception as e:
-        # Catch all other errors.
-        print(f"An exception occurred while trying to get your current IP address: {e}")
-        if APPRISE_ALERTS:
-            alerts.notify(title=f"An exception occurred while trying to get your current IP address",
-                body=f"{e}")
-        # Wait some time (to prevent Docker containers from constantly restarting)
-        sleep(60)
-        raise Exception
+# def get_current_ip(type, proxies):
+#     try:
+#         return ((requests.get(f"https://ip{type}.icanhazip.com", proxies=proxies)).text).strip("\n")
+#     except requests.ConnectionError:
+#         print(f"Unable to get IP{type} address")
+#         if type == "v4":
+#             # Send message to console and apprise alert if configured
+#             print(f"Failed to connect to icanhazip.com over {type}. Is there a problem with your network?")
+#             if APPRISE_ALERTS:
+#                 alerts.notify(title=f"Failed to connect to icanhazip.com over {type}",
+#                     body=f"Is there a problem with your network?")
+#             # Wait some time (to prevent Docker containers from constantly restarting)
+#             sleep(300)
+#             raise Exception(f"Failed to connect to icanhazip.com over {type}. Is there a problem with your network?")
+#         if type == "v6":
+#             # We can just fail softly if this error occurs with v6. Note that a ConnectionError is raised if a v4-only host tries to connect to a v6 site
+#             # We can make this fail hard once v6 is actually widely available....
+#             return None
+#     except Exception as e:
+#         # Catch all other errors.
+#         print(f"An exception occurred while trying to get your current IP address: {e}")
+#         if APPRISE_ALERTS:
+#             alerts.notify(title=f"An exception occurred while trying to get your current IP address",
+#                 body=f"{e}")
+#         # Wait some time (to prevent Docker containers from constantly restarting)
+#         sleep(60)
+#         raise Exception
 
-def check_ip_address():
-    # Compares desired IP address with actual external IP address
-    current_ipv4 = get_current_ip("v4", PROXIES)
-    print(f"Current IPv4 Address: {current_ipv4}")
-    current_ipv6 = get_current_ip("v6", PROXIES)
-    if current_ipv6:
-        print(f"Current IPv6 Address: {current_ipv6}")
-    # If declared in .env, check the IPv4 address
-    if WANTED_IPV4:
-        if WANTED_IPV4 != current_ipv4:
-            print(f"IPv4 addresses do not match. Wanted {WANTED_IPV4} but got {current_ipv4}")
-            if APPRISE_ALERTS:
-                alerts.notify(title=f'IPv4 Address Mismatch',body=f'Wanted {WANTED_IPV4} but got {current_ipv4}')
-            raise Exception(f"IPv4 addresses do not match. Wanted {WANTED_IPV4} but got {current_ipv4}")
-        else:
-            print("IPv4 addresses match!")
-    # If declared in .env, check the IPv6 address
-    if WANTED_IPV6 and current_ipv6:
-        if WANTED_IPV6 != current_ipv6:
-            print(f"IPv6 addresses do not match. Wanted {WANTED_IPV6} but got {current_ipv6}")
-            if APPRISE_ALERTS:
-                alerts.notify(title=f'IPv6 Address Mismatch', 
-                    body=f'Wanted {WANTED_IPV6} but got {current_ipv6}')
-            raise Exception(f"IPv6 addresses do not match. Wanted {WANTED_IPV6} but got {current_ipv6}")
-        else:
-            print("IPv6 addresses match!")
-    print()
+# def check_ip_address():
+#     # Compares desired IP address with actual external IP address
+#     current_ipv4 = get_current_ip("v4", PROXIES)
+#     print(f"Current IPv4 Address: {current_ipv4}")
+#     current_ipv6 = get_current_ip("v6", PROXIES)
+#     if current_ipv6:
+#         print(f"Current IPv6 Address: {current_ipv6}")
+#     # If declared in .env, check the IPv4 address
+#     if WANTED_IPV4:
+#         if WANTED_IPV4 != current_ipv4:
+#             print(f"IPv4 addresses do not match. Wanted {WANTED_IPV4} but got {current_ipv4}")
+#             if APPRISE_ALERTS:
+#                 alerts.notify(title=f'IPv4 Address Mismatch',body=f'Wanted {WANTED_IPV4} but got {current_ipv4}')
+#             raise Exception(f"IPv4 addresses do not match. Wanted {WANTED_IPV4} but got {current_ipv4}")
+#         else:
+#             print("IPv4 addresses match!")
+#     # If declared in .env, check the IPv6 address
+#     if WANTED_IPV6 and current_ipv6:
+#         if WANTED_IPV6 != current_ipv6:
+#             print(f"IPv6 addresses do not match. Wanted {WANTED_IPV6} but got {current_ipv6}")
+#             if APPRISE_ALERTS:
+#                 alerts.notify(title=f'IPv6 Address Mismatch', 
+#                     body=f'Wanted {WANTED_IPV6} but got {current_ipv6}')
+#             raise Exception(f"IPv6 addresses do not match. Wanted {WANTED_IPV6} but got {current_ipv6}")
+#         else:
+#             print("IPv6 addresses match!")
+#     print()
 
 def get_driver(isMobile = False):
     if BROWSER == "chrome":
@@ -396,8 +396,18 @@ def login(EMAIL, PASSWORD, driver):
             password_field.send_keys(PASSWORD)
             password_field.send_keys(Keys.ENTER)
         except:
-            print(f'Unable to find password field for account {EMAIL}')
-            return False
+            try:
+                password_field = driver.find_element(By.XPATH, value='//*[@id="idRemoteNGC_DisplaySign"]')
+                print(password_field)
+                if password_field is not None:
+                    print(f'Using 2FA waiting for approval')
+                    sleep(30)
+                    print(f'Done ')
+                    return True
+            except:
+                print(f'Unable to find password field for account {EMAIL}')
+                sleep(45)
+                return True
     sleep(random.uniform(3, 6))
     try:
         message = driver.find_element(By.XPATH, value='//*[@id="passwordError"]').text
@@ -1107,7 +1117,7 @@ def pc_search(driver, EMAIL, PASSWORD, PC_SEARCHES):
         ping.send_keys(value)
 
         # add delay to prevent ban
-        sleep(4)
+        sleep(5)
         try:
             go = driver.find_element(By.ID, value="sb_form_go")
             go.click()
@@ -1483,5 +1493,5 @@ if __name__ == "__main__":
         alerts = apprise_init()
 
     # Run checks on IP address & start main function, if all is good
-    check_ip_address()
+    # check_ip_address()
     main()
